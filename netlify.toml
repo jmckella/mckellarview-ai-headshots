@@ -2,6 +2,13 @@
   publish = "."
   functions = "netlify/functions"
 
+# Legacy Netlify subdomain → custom domain
+[[redirects]]
+  from = "https://mckellarview-ai-headshots.netlify.app/*"
+  to = "https://headshots.motionvisualmedia.com/:splat"
+  status = 301
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
