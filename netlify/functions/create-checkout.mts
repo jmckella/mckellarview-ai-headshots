@@ -57,6 +57,7 @@ export default async (req: Request, context: Context) => {
 
     const params = new URLSearchParams({
       "mode": "payment",
+      "allow_promotion_codes": "true",
       "customer_email": email || "",
       "success_url": `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       "cancel_url": `${siteUrl}/#order`,
@@ -70,7 +71,11 @@ export default async (req: Request, context: Context) => {
     });
 
     Object.entries(metadata).forEach(([key, value]) => {
-      if (value) params.append(`payment_intent_data[metadata][${key}]`, value);
+      if (value) {
+        params.append(`payment_intent_data[metadata][${key}]`, value);
+        // Session-level copy — checkout.session.completed webhooks read from here
+        params.append(`metadata[${key}]`, value);
+      }
     });
 
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
