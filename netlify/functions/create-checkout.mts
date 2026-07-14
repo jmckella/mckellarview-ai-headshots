@@ -1,24 +1,15 @@
 import type { Context } from "@netlify/functions";
 
 const PRICES: Record<string, number> = {
-  "quick-shot": 4900,
   "pro-look": 8900,
-  "executive": 14900,
-  "signature": 19900,
 };
 
 const NAMES: Record<string, string> = {
-  "quick-shot": "AI Headshots — Quick Shot",
-  "pro-look": "AI Headshots — Pro Look",
-  "executive": "AI Headshots — Executive",
-  "signature": "AI Headshots — Signature (Human Review)",
+  "pro-look": "Professional AI Headshots — Motion Visual Media",
 };
 
 const DESCRIPTIONS: Record<string, string> = {
-  "quick-shot": "3 AI headshots · 1 style · 48-hour delivery",
-  "pro-look": "5 AI headshots · 3 styles · 48-hour delivery · LinkedIn crop",
-  "executive": "10 AI headshots · 5 styles · Priority 24-hour delivery · LinkedIn crop",
-  "signature": "10 AI headshots · 5 styles · 15-year pro review · LinkedIn crop · 1 revision",
+  "pro-look": "5 AI headshots · 3 styles · Pro review included · 48-hour delivery · LinkedIn crop · 1 revision round",
 };
 
 export default async (req: Request, context: Context) => {
@@ -46,16 +37,10 @@ export default async (req: Request, context: Context) => {
     }
 
     // Calculate price
-    let unitAmount = PRICES[pkg];
-    let productName = NAMES[pkg];
-    let description = DESCRIPTIONS[pkg];
-    const humanReview = human_review || pkg === "signature";
-
-    if (humanReview && pkg !== "signature") {
-      unitAmount += 5000;
-      productName += " + Human Review";
-      description += " · + Pro photography review (+$50)";
-    }
+    const unitAmount = PRICES[pkg];
+    const productName = NAMES[pkg];
+    const description = DESCRIPTIONS[pkg];
+    const humanReview = true; // review is included in every order
 
     const siteUrl = Netlify.env.get("URL") || "https://mckellarview-ai-headshots.netlify.app";
 
