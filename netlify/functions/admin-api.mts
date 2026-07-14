@@ -91,6 +91,13 @@ function orderKeyFromSession(s: any): string {
 
 const stripeHeaders = () => ({ Authorization: `Bearer ${env("STRIPE_SECRET_KEY")}` });
 
+// Only sessions created by THIS site (its success_url always points here,
+// on both the legacy .netlify.app domain and the custom domain). The Stripe
+// account also serves other businesses — never show their orders.
+const isHeadshotOrder = (s: any) =>
+  typeof s.success_url === "string" &&
+  /headshots\.motionvisualmedia\.com|mckellarview-ai-headshots\.netlify\.app/.test(s.success_url);
+
 function sessionSummary(s: any) {
   return {
     id: s.id,
@@ -131,7 +138,9 @@ export default async (req: Request, context: Context) => {
       const res = await fetch("https://api.stripe.com/v1/checkout/sessions?limit=100", { headers: stripeHeaders() });
       if (!res.ok) return json({ error: "Stripe list failed" }, 502);
       const data = await res.json();
-      const orders = (data.data as any[]).map(sessionSummary)
+      const orders = (data.data as any[])
+        .filter(isHeadshotOrder)
+        .map(sessionSummary)
         .sort((a, b) => b.created - a.created);
       return json({ orders });
     }
@@ -142,6 +151,7 @@ export default async (req: Request, context: Context) => {
       const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${id}`, { headers: stripeHeaders() });
       if (!res.ok) return json({ error: "Order not found" }, 404);
       const s = await res.json();
+      if (!isHeadshotOrder(s)) return json({ error: "Order not found" }, 404);
       const order = sessionSummary(s);
 
       const refFiles = await storageList(UPLOADS, `orders/${order.orderKey}`);
