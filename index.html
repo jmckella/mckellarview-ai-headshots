@@ -558,6 +558,13 @@ footer{background:#050505;border-top:1px solid rgba(255,255,255,.07);padding:3re
   </div>
 </footer>
 
+<!-- Registered at deploy so the Stripe webhook can relay order notifications into Netlify Forms -->
+<form name="order-notifications" data-netlify="true" hidden>
+  <input type="text" name="order_ref"><input type="text" name="customer_name"><input type="email" name="customer_email">
+  <input type="text" name="amount"><input type="text" name="package"><input type="text" name="style">
+  <input type="text" name="background"><input type="text" name="notes"><input type="text" name="photos"><input type="text" name="mode">
+</form>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -732,8 +739,8 @@ async function uploadPhotos(files) {
     if (fill) fill.style.width='85%';
     const data = await res.json();
     if (fill) fill.style.width='100%';
-    if (data.urls && data.urls.length) {
-      uploadedPhotoUrls = data.urls;
+    if (data.paths && data.paths.length) {
+      uploadedPhotoUrls = data.paths;
       if (pct) pct.textContent='Done!';
       setTimeout(()=>{if(prog)prog.style.display='none';}, 800);
       if (stat) stat.style.display='block';
