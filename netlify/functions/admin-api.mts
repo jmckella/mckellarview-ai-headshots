@@ -175,6 +175,7 @@ export default async (req: Request, context: Context) => {
         const res = await fetch(`${env("SUPABASE_URL")}/storage/v1/object/upload/sign/${DELIVERIES}/${path}`, {
           method: "POST",
           headers: dbHeaders(),
+          body: JSON.stringify({}),
         });
         if (!res.ok) return json({ error: `Could not sign upload for ${name}: ${res.status} ${(await res.text()).slice(0, 200)}` }, 502);
         const { url: signed } = await res.json();
