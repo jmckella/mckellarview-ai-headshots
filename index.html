@@ -553,6 +553,7 @@ footer{background:#050505;border-top:1px solid rgba(255,255,255,.07);padding:3re
     <div class="footer-bottom">
       <p>© 2026 Motion Visual Media · All rights reserved · Charlotte, NC</p>
       <p>AI-generated images — results may vary · Photos deleted within 7 days of delivery</p>
+      <p><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Service</a> · <a href="/support">Support</a></p>
       <p><a href="mailto:hello@motionvisualmedia.com">hello@motionvisualmedia.com</a></p>
     </div>
   </div>
@@ -731,15 +732,22 @@ async function uploadPhotos(files) {
   if (fill) fill.style.width='15%';
   if (pct)  pct.textContent='Uploading...';
   try {
-    const fd = new FormData();
-    fd.append('orderId', orderId);
-    files.forEach(f => fd.append('photos', f));
-    if (fill) fill.style.width='45%';
-    const res = await fetch('/api/upload-photos', {method:'POST', body:fd});
-    if (fill) fill.style.width='85%';
+    // Ask the server for path-scoped signed upload URLs, then send the files
+    // straight to private storage — no size ceiling from the function layer.
+    const res = await fetch('/api/upload-photos', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({orderId, files: files.map(f => ({name:f.name, type:f.type, size:f.size}))})
+    });
+    if (fill) fill.style.width='30%';
     const data = await res.json();
-    if (fill) fill.style.width='100%';
-    if (data.paths && data.paths.length) {
+    if (data.uploads && data.uploads.length) {
+      for (let i = 0; i < data.uploads.length; i++) {
+        if (pct) pct.textContent = 'Uploading ' + (i+1) + ' of ' + data.uploads.length + '…';
+        const put = await fetch(data.uploads[i].uploadUrl, {method:'PUT', headers:{'Content-Type': files[i].type || 'image/jpeg'}, body: files[i]});
+        if (!put.ok) throw new Error('upload failed');
+        if (fill) fill.style.width = (30 + Math.round(((i+1)/data.uploads.length)*70)) + '%';
+      }
       uploadedPhotoUrls = data.paths;
       if (pct) pct.textContent='Done!';
       setTimeout(()=>{if(prog)prog.style.display='none';}, 800);

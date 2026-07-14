@@ -1,5 +1,20 @@
 import type { Context } from "@netlify/functions";
 
+// Issues short-lived signed upload URLs so the browser uploads reference
+// photos DIRECTLY to private Supabase storage. This bypasses the ~6MB
+// Netlify function body limit that the old multipart passthrough hit with
+// multiple phone photos. Constraints are validated here and enforced again
+// by the bucket itself (10MB cap, image MIME allowlist, private, no anon
+// policies — files are only readable via server-side signed URLs).
+
+const BUCKET = "headshot-uploads";
+const MAX_FILES = 3;
+const MAX_SIZE = 10 * 1024 * 1024;
+const SAFE_ORDER = /^[A-Za-z0-9_-]{4,60}$/;
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+
 export default async (req: Request, context: Context) => {
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405 });
@@ -7,84 +22,62 @@ export default async (req: Request, context: Context) => {
 
   try {
     const supabaseUrl = Netlify.env.get("SUPABASE_URL");
-    // Use SERVICE ROLE key server-side — never exposed to the browser
+    // Service role key stays server-side; the browser only ever sees
+    // single-use, path-scoped upload tokens.
     const supabaseServiceKey = Netlify.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
     if (!supabaseUrl || !supabaseServiceKey) {
-      return new Response(JSON.stringify({ error: "Storage not configured" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
+      return json({ error: "Storage not configured" }, 500);
     }
 
-    const formData = await req.formData();
-    const orderId = (formData.get("orderId") as string) || `order_${Date.now()}`;
-    const files = formData.getAll("photos") as File[];
+    const body = await req.json().catch(() => null);
+    if (!body) return json({ error: "Bad request" }, 400);
 
-    if (!files || files.length === 0) {
-      return new Response(JSON.stringify({ error: "No files provided" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const orderId = SAFE_ORDER.test(String(body.orderId || "")) ? String(body.orderId) : `order_${Date.now()}`;
+    const files = (Array.isArray(body.files) ? body.files : []).slice(0, MAX_FILES);
+    if (!files.length) return json({ error: "No files provided" }, 400);
 
-    const uploadedPaths: string[] = [];
+    const uploads: Array<{ path: string; uploadUrl: string }> = [];
     const errors: string[] = [];
 
-    for (const file of files) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) continue;
-      // Limit file size to 10MB
-      if (file.size > 10 * 1024 * 1024) continue;
+    for (const f of files) {
+      const type = String(f.type || "");
+      const size = Number(f.size || 0);
+      const rawName = String(f.name || "photo.jpg");
+      if (!type.startsWith("image/")) { errors.push(`${rawName}: not an image`); continue; }
+      if (!size || size > MAX_SIZE) { errors.push(`${rawName}: over the 10MB limit`); continue; }
 
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      // Private path — orderId scoped so only you can find them
-      const storagePath = `orders/${orderId}/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+      const ext = (rawName.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "jpg";
+      const path = `orders/${orderId}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-      const fileBuffer = await file.arrayBuffer();
-
-      const uploadRes = await fetch(
-        `${supabaseUrl}/storage/v1/object/headshot-uploads/${storagePath}`,
-        {
-          method: "POST",
-          headers: {
-            // Service role key — full access, server-side only
-            Authorization: `Bearer ${supabaseServiceKey}`,
-            "Content-Type": file.type || "image/jpeg",
-            "x-upsert": "false",
-          },
-          body: fileBuffer,
-        }
-      );
-
-      if (!uploadRes.ok) {
-        const err = await uploadRes.text();
-        console.error("Upload error:", uploadRes.status, err);
-        errors.push(`storage ${uploadRes.status}: ${err.slice(0, 200)}`);
+      const res = await fetch(`${supabaseUrl}/storage/v1/object/upload/sign/${BUCKET}/${path}`, {
+        method: "POST",
+        headers: {
+          apikey: supabaseServiceKey,
+          Authorization: `Bearer ${supabaseServiceKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        console.error("upload-photos sign error:", res.status, err);
+        errors.push(`${rawName}: storage error`);
         continue;
       }
-
-      uploadedPaths.push(storagePath);
+      const { url: signed } = await res.json();
+      uploads.push({ path, uploadUrl: `${supabaseUrl}/storage/v1${signed}` });
     }
 
-    // Return storage paths, NOT public URLs — you retrieve via signed URLs later
-    return new Response(
-      JSON.stringify({
-        success: uploadedPaths.length > 0,
-        paths: uploadedPaths,
-        orderId,
-        count: uploadedPaths.length,
-        errors: errors.length ? errors : undefined,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
-
+    return json({
+      success: uploads.length > 0,
+      orderId,
+      uploads,
+      paths: uploads.map((u) => u.path),
+      errors: errors.length ? errors : undefined,
+    });
   } catch (err) {
     console.error("Upload function error:", err);
-    return new Response(JSON.stringify({ error: "Upload failed. Please try again." }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return json({ error: "Upload failed. Please try again." }, 500);
   }
 };
 
