@@ -29,6 +29,7 @@ export default async (req: Request, context: Context) => {
     }
 
     const uploadedPaths: string[] = [];
+    const errors: string[] = [];
 
     for (const file of files) {
       // Validate file type
@@ -58,7 +59,8 @@ export default async (req: Request, context: Context) => {
 
       if (!uploadRes.ok) {
         const err = await uploadRes.text();
-        console.error("Upload error:", err);
+        console.error("Upload error:", uploadRes.status, err);
+        errors.push(`storage ${uploadRes.status}: ${err.slice(0, 200)}`);
         continue;
       }
 
@@ -68,10 +70,11 @@ export default async (req: Request, context: Context) => {
     // Return storage paths, NOT public URLs — you retrieve via signed URLs later
     return new Response(
       JSON.stringify({
-        success: true,
+        success: uploadedPaths.length > 0,
         paths: uploadedPaths,
         orderId,
         count: uploadedPaths.length,
+        errors: errors.length ? errors : undefined,
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
