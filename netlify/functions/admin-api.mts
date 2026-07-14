@@ -138,9 +138,12 @@ export default async (req: Request, context: Context) => {
       const res = await fetch("https://api.stripe.com/v1/checkout/sessions?limit=100", { headers: stripeHeaders() });
       if (!res.ok) return json({ error: "Stripe list failed" }, 502);
       const data = await res.json();
+      const statusRes = await fetch(`${env("SUPABASE_URL")}/rest/v1/order_status?select=order_key,status`, { headers: dbHeaders() });
+      const statusRows: Array<{ order_key: string; status: string }> = statusRes.ok ? await statusRes.json() : [];
+      const statusMap = new Map(statusRows.map((r) => [r.order_key, r.status]));
       const orders = (data.data as any[])
         .filter(isHeadshotOrder)
-        .map(sessionSummary)
+        .map((s) => ({ ...sessionSummary(s), adminStatus: statusMap.get(orderKeyFromSession(s)) || "open" }))
         .sort((a, b) => b.created - a.created);
       return json({ orders });
     }
@@ -152,7 +155,10 @@ export default async (req: Request, context: Context) => {
       if (!res.ok) return json({ error: "Order not found" }, 404);
       const s = await res.json();
       if (!isHeadshotOrder(s)) return json({ error: "Order not found" }, 404);
-      const order = sessionSummary(s);
+      const order: any = sessionSummary(s);
+      const stRes = await fetch(`${env("SUPABASE_URL")}/rest/v1/order_status?order_key=eq.${encodeURIComponent(order.orderKey)}&select=status&limit=1`, { headers: dbHeaders() });
+      const stRows = stRes.ok ? await stRes.json() : [];
+      order.adminStatus = stRows[0]?.status || "open";
 
       const refFiles = await storageList(UPLOADS, `orders/${order.orderKey}`);
       const refs = await signPaths(UPLOADS, refFiles.map((f) => `orders/${order.orderKey}/${f.name}`), 3600);
@@ -192,6 +198,20 @@ export default async (req: Request, context: Context) => {
         out.push({ name, path, uploadUrl: `${env("SUPABASE_URL")}/storage/v1${signed}` });
       }
       return json({ uploads: out });
+    }
+
+    if (route === "/api/admin/set-status" && req.method === "POST") {
+      const body = await req.json();
+      const orderKey = String(body.orderKey || "");
+      const status = String(body.status || "");
+      if (!SAFE_KEY.test(orderKey) || !["open", "completed"].includes(status)) return json({ error: "Bad request" }, 400);
+      const res = await fetch(`${env("SUPABASE_URL")}/rest/v1/order_status`, {
+        method: "POST",
+        headers: { ...dbHeaders(), Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify({ order_key: orderKey, status, updated_at: new Date().toISOString() }),
+      });
+      if (!res.ok) return json({ error: "Could not save status" }, 502);
+      return json({ ok: true, orderKey, status });
     }
 
     if (route === "/api/admin/generate-link" && req.method === "POST") {
