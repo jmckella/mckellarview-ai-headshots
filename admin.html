@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Orders — Motion Visual Media</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1611;--panel:#15231b;--panel2:#1a2c21;--ink:#f1f0e9;--mute:#a3afa4;--faint:#6d7a6f;
+--line:rgba(241,240,233,.10);--line2:rgba(241,240,233,.17);--accent:#a9c3a0;--accent-deep:#7ea173;
+--ok:#8fd0a5;--warn:#e0b36b;--bad:#d98a8a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:400;letter-spacing:-.01em}
+a{color:inherit}
+button{font-family:inherit;cursor:pointer}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+header{position:sticky;top:0;z-index:10;background:rgba(13,22,17,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.head-in{display:flex;align-items:center;gap:12px;padding:14px 0}
+.head-in img{width:34px;height:34px;border-radius:50%;border:1px solid var(--accent);object-fit:cover}
+.head-in h1{font-size:19px;flex:1}
+.eyebrow{font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.btn{background:var(--accent);color:var(--bg);border:none;border-radius:4px;padding:12px 18px;font-size:13.5px;font-weight:500;letter-spacing:.04em;min-height:44px;transition:.2s}
+.btn:hover{background:var(--accent-deep)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:transparent}
+/* GATE */
+#gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.gate-card{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:36px 28px;text-align:center}
+.gate-card img{width:72px;height:72px;border-radius:50%;border:1px solid var(--accent);margin:0 auto 18px;object-fit:cover;display:block}
+.gate-card h1{font-size:26px;margin-bottom:6px}
+.gate-card p{color:var(--mute);font-size:13.5px;margin-bottom:22px}
+.gate-card input{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:5px;color:var(--ink);padding:13px 14px;font-size:15px;margin-bottom:12px;text-align:center;letter-spacing:.1em}
+.gate-card input:focus{outline:none;border-color:var(--accent)}
+.gate-card .btn{width:100%}
+.gate-err{color:var(--bad);font-size:13px;margin-top:12px;min-height:18px}
+/* LIST */
+#app{display:none}
+main{padding:26px 0 80px}
+.list-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+.list-head h2{font-size:clamp(24px,4vw,32px)}
+.count{color:var(--faint);font-size:13px}
+.order-card{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin-bottom:10px;transition:.2s;color:inherit}
+.order-card:hover{border-color:var(--accent)}
+.oc-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.oc-name{font-weight:500;font-size:15.5px}
+.oc-amt{font-family:'Fraunces',serif;font-size:16px;color:var(--accent);margin-left:auto}
+.oc-sub{display:flex;gap:14px;flex-wrap:wrap;color:var(--mute);font-size:12.5px;margin-top:6px}
+.badge{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid}
+.badge.paid{color:var(--ok);border-color:var(--ok)}
+.badge.unpaid{color:var(--warn);border-color:var(--warn)}
+.badge.photos{color:var(--accent);border-color:var(--line2)}
+.empty{color:var(--faint);text-align:center;padding:60px 0;font-size:14px}
+/* DETAIL */
+.back{background:none;border:none;color:var(--accent);font-size:13.5px;letter-spacing:.06em;padding:10px 0;min-height:44px;display:inline-flex;align-items:center;gap:6px}
+.detail-head{margin:6px 0 20px}
+.detail-head h2{font-size:clamp(26px,4.5vw,34px)}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:26px}
+.meta{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.meta b{display:block;font-weight:500;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.meta span{font-size:14px;word-break:break-word}
+section.block{margin-bottom:30px}
+section.block h3{font-size:19px;margin-bottom:4px}
+section.block .sub{color:var(--mute);font-size:13px;margin-bottom:12px}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.photo-grid a{display:block;aspect-ratio:1/1;border-radius:7px;overflow:hidden;border:1px solid var(--line);background:var(--panel2)}
+.photo-grid img{width:100%;height:100%;object-fit:cover}
+.none{color:var(--faint);font-size:13.5px;font-style:italic}
+.uploader{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.uploader input[type=file]{display:none}
+#upStatus{font-size:13px;color:var(--accent);min-height:18px;width:100%}
+.linkbox{background:var(--panel);border:1px solid var(--accent);border-radius:8px;padding:14px 16px;margin-top:12px;display:none}
+.linkbox code{display:block;font-size:12.5px;color:var(--accent);word-break:break-all;margin-bottom:10px;font-family:ui-monospace,monospace}
+.linkbox small{display:block;color:var(--faint);margin-top:8px;font-size:12px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);background:var(--accent);color:var(--bg);padding:11px 22px;border-radius:30px;font-size:13.5px;font-weight:500;transition:.3s;z-index:50}
+.toast.show{transform:translateX(-50%) translateY(0)}
+@media(max-width:600px){.meta-grid{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <form class="gate-card" id="gateForm">
+    <img src="mvm-logo-mark.png" alt="Motion Visual Media">
+    <span class="eyebrow">Team Access</span>
+    <h1>Order Dashboard</h1>
+    <p>Enter the team passcode to continue.</p>
+    <input type="password" id="passInput" placeholder="Passcode" autocomplete="current-password" autofocus>
+    <button class="btn" type="submit">Unlock</button>
+    <div class="gate-err" id="gateErr"></div>
+  </form>
+</div>
+
+<div id="app">
+  <header><div class="wrap head-in">
+    <img src="mvm-logo-mark.png" alt="Motion Visual Media">
+    <h1>Orders</h1>
+    <button class="btn btn-ghost" id="refreshBtn" style="min-height:38px;padding:8px 14px;font-size:12.5px">Refresh</button>
+  </div></header>
+  <main class="wrap">
+    <div id="listView">
+      <div class="list-head"><h2>Recent orders</h2><span class="count" id="orderCount"></span></div>
+      <div id="orderList"><div class="empty">Loading orders…</div></div>
+    </div>
+    <div id="detailView" style="display:none"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+let PASS=sessionStorage.getItem('mvmAdminPass')||'';
+let ordersCache=[];
+
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+async function api(path,opts={}){
+  const res=await fetch(path,{...opts,headers:{...(opts.headers||{}),'x-admin-passcode':PASS,...(opts.body&&typeof opts.body==='string'?{'Content-Type':'application/json'}:{})}});
+  if(res.status===401){sessionStorage.removeItem('mvmAdminPass');PASS='';showGate('Session ended — enter the passcode again.');throw new Error('unauthorized')}
+  if(res.status===429){toast('Too many attempts — wait a few minutes');throw new Error('rate')}
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(data.error||('HTTP '+res.status));
+  return data;
+}
+function showGate(msg){$('gate').style.display='flex';$('app').style.display='none';if(msg)$('gateErr').textContent=msg}
+function showApp(){$('gate').style.display='none';$('app').style.display='block'}
+
+$('gateForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  PASS=$('passInput').value.trim();
+  $('gateErr').textContent='';
+  try{
+    await api('/api/admin/verify');
+    sessionStorage.setItem('mvmAdminPass',PASS);
+    showApp();loadOrders();
+  }catch(err){
+    if(err.message!=='unauthorized')$('gateErr').textContent='Could not verify — '+err.message;
+    else $('gateErr').textContent='That passcode isn’t right.';
+  }
+});
+
+const money=(amt,cur)=>amt==null?'—':'$'+(amt/100).toFixed(2)+(cur&&cur!=='usd'?' '+cur.toUpperCase():'');
+const when=ts=>new Date(ts*1000).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function loadOrders(){
+  $('orderList').innerHTML='<div class="empty">Loading orders…</div>';
+  try{
+    const {orders}=await api('/api/admin/orders');
+    ordersCache=orders;
+    $('orderCount').textContent=orders.length+' session'+(orders.length===1?'':'s');
+    if(!orders.length){$('orderList').innerHTML='<div class="empty">No orders yet.</div>';return}
+    $('orderList').innerHTML=orders.map(o=>`
+      <button class="order-card" onclick="openOrder('${esc(o.id)}')">
+        <div class="oc-top">
+          <span class="oc-name">${esc(o.name)||'<i style="color:var(--faint)">No name</i>'}</span>
+          <span class="badge ${o.paymentStatus==='paid'?'paid':'unpaid'}">${esc(o.paymentStatus)}</span>
+          ${o.photosUploaded?'<span class="badge photos">photos in</span>':''}
+          <span class="oc-amt">${money(o.amount,o.currency)}</span>
+        </div>
+        <div class="oc-sub">
+          <span>${esc(o.email)}</span>
+          <span>${esc(o.style)||'no style picked'}</span>
+          <span>${when(o.created)}</span>
+        </div>
+      </button>`).join('');
+  }catch(err){if(err.message!=='unauthorized')$('orderList').innerHTML='<div class="empty">Could not load orders — '+esc(err.message)+'</div>'}
+}
+
+async function openOrder(id){
+  $('listView').style.display='none';
+  const dv=$('detailView');dv.style.display='block';
+  dv.innerHTML='<div class="empty">Loading order…</div>';
+  try{
+    const d=await api('/api/admin/order?id='+encodeURIComponent(id));
+    renderDetail(d);
+  }catch(err){if(err.message!=='unauthorized')dv.innerHTML='<div class="empty">Could not load order — '+esc(err.message)+'</div><button class="back" onclick="backToList()">← Back</button>'}
+}
+function backToList(){$('detailView').style.display='none';$('listView').style.display='block'}
+
+function renderDetail(d){
+  const o=d.order;
+  const refHtml=d.referencePhotos.length
+    ?'<div class="photo-grid">'+d.referencePhotos.map(p=>`<a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="Reference photo"></a>`).join('')+'</div>'
+    :'<p class="none">No uploads — customer is sending photos by email reply.</p>';
+  const delHtml=d.deliveredPhotos.length
+    ?'<div class="photo-grid">'+d.deliveredPhotos.map(p=>`<a href="${esc(p.url)}" target="_blank" rel="noopener"><img src="${esc(p.url)}" alt="Finished headshot"></a>`).join('')+'</div>'
+    :'<p class="none">Nothing uploaded yet.</p>';
+  $('detailView').innerHTML=`
+    <button class="back" onclick="backToList()">← All orders</button>
+    <div class="detail-head">
+      <span class="eyebrow">Order · ${when(o.created)}</span>
+      <h2>${esc(o.name)||'Unnamed order'}</h2>
+    </div>
+    <div class="meta-grid">
+      <div class="meta"><b>Email</b><span>${esc(o.email)||'—'}</span></div>
+      <div class="meta"><b>Paid</b><span>${money(o.amount,o.currency)} · ${esc(o.paymentStatus)}${o.livemode?'':' (test)'}</span></div>
+      <div class="meta"><b>Style</b><span>${esc(o.style)||'—'}</span></div>
+      <div class="meta"><b>Background</b><span>${esc(o.background)||'—'}</span></div>
+      <div class="meta" style="grid-column:1/-1"><b>Notes</b><span>${esc(o.notes)||'—'}</span></div>
+    </div>
+    <section class="block">
+      <h3>Reference photos</h3>
+      <p class="sub">What the customer uploaded. Links open full size (signed, 1-hour).</p>
+      ${refHtml}
+    </section>
+    <section class="block">
+      <h3>Finished headshots</h3>
+      <p class="sub">Upload the final files here, then generate the delivery link.</p>
+      <div id="delGrid">${delHtml}</div>
+      <div class="uploader">
+        <input type="file" id="fileInput" accept="image/*" multiple>
+        <button class="btn btn-ghost" onclick="document.getElementById('fileInput').click()">Choose files</button>
+        <button class="btn" id="genBtn" ${d.deliveredPhotos.length?'':'disabled'} onclick="generateLink('${esc(o.orderKey)}','${esc(o.name)}')">${d.deliveryLink?'Regenerate delivery link':'Generate delivery link'}</button>
+        <div id="upStatus"></div>
+      </div>
+      <div class="linkbox" id="linkbox" ${d.deliveryLink?'style="display:block"':''}>
+        <code id="linkUrl">${d.deliveryLink?esc(d.deliveryLink.url):''}</code>
+        <button class="btn btn-ghost" onclick="copyLink()">Copy link</button>
+        <small id="linkExp">${d.deliveryLink?'Valid until '+new Date(d.deliveryLink.expiresAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' — regenerating replaces this link.':''}</small>
+      </div>
+    </section>`;
+  $('fileInput').addEventListener('change',e=>uploadFinished(o.orderKey,o.id,e.target.files));
+}
+
+async function uploadFinished(orderKey,sessionId,fileList){
+  const files=[...fileList];if(!files.length)return;
+  const st=$('upStatus');
+  try{
+    st.textContent='Preparing upload…';
+    const {uploads}=await api('/api/admin/sign-uploads',{method:'POST',body:JSON.stringify({orderKey,files:files.map(f=>({name:f.name,type:f.type}))})});
+    for(let i=0;i<uploads.length;i++){
+      st.textContent=`Uploading ${i+1} of ${uploads.length}…`;
+      const put=await fetch(uploads[i].uploadUrl,{method:'PUT',headers:{'Content-Type':files[i].type||'image/jpeg'},body:files[i]});
+      if(!put.ok)throw new Error('upload failed for '+uploads[i].name);
+    }
+    st.textContent='Uploaded ✓';
+    toast(uploads.length+' file'+(uploads.length>1?'s':'')+' uploaded');
+    openOrder(sessionId);
+  }catch(err){if(err.message!=='unauthorized'){st.textContent='';toast('Upload failed: '+err.message)}}
+}
+
+async function generateLink(orderKey,customerName){
+  const btn=$('genBtn');btn.disabled=true;
+  try{
+    const d=await api('/api/admin/generate-link',{method:'POST',body:JSON.stringify({orderKey,customerName})});
+    $('linkbox').style.display='block';
+    $('linkUrl').textContent=d.url;
+    $('linkExp').textContent='Valid until '+new Date(d.expiresAt).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' — regenerating replaces this link.';
+    btn.textContent='Regenerate delivery link';
+    toast('Delivery link ready — copy and email it');
+  }catch(err){if(err.message!=='unauthorized')toast(err.message)}
+  btn.disabled=false;
+}
+function copyLink(){navigator.clipboard.writeText($('linkUrl').textContent).then(()=>toast('Link copied'))}
+
+if(PASS){api('/api/admin/verify').then(()=>{showApp();loadOrders()}).catch(()=>{})}
+</script>
+</body>
+</html>

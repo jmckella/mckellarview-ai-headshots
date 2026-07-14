@@ -57,7 +57,6 @@ export default async (req: Request, context: Context) => {
 
     const params = new URLSearchParams({
       "mode": "payment",
-      "allow_promotion_codes": "true",
       "customer_email": email || "",
       "success_url": `${siteUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       "cancel_url": `${siteUrl}/#order`,

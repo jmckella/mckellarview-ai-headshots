@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Your Headshots — Motion Visual Media</title>
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1611;--panel:#15231b;--ink:#f1f0e9;--mute:#a3afa4;--faint:#6d7a6f;
+--line:rgba(241,240,233,.10);--line2:rgba(241,240,233,.17);--accent:#a9c3a0;--accent-deep:#7ea173}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh;
+background-image:radial-gradient(120% 70% at 75% 0%,rgba(126,161,115,.13),transparent 55%)}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:400;line-height:1.05;letter-spacing:-.01em}
+.wrap{max-width:920px;margin:0 auto;padding:0 22px}
+header{padding:26px 0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:40px;height:40px;border-radius:50%;border:1px solid var(--accent);object-fit:cover}
+.brand span{font-family:'Fraunces',serif;font-size:17px}
+.eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);font-weight:500}
+main{padding:34px 0 90px}
+.hero h1{font-size:clamp(34px,7vw,56px);margin:14px 0 12px}
+.hero h1 em{font-style:italic}
+.hero p{color:var(--mute);max-width:52ch;font-size:15px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 34px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--accent);color:var(--bg);border:none;border-radius:4px;
+padding:14px 26px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;min-height:48px;text-decoration:none;transition:.25s}
+.btn:hover{background:var(--accent-deep)}
+.btn:disabled{opacity:.6;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.shot{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.shot img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}
+.shot .row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+.shot .row span{font-size:12.5px;color:var(--faint);letter-spacing:.06em}
+.shot .row a{color:var(--accent);font-size:13px;text-decoration:none;border:1px solid var(--line2);border-radius:4px;padding:9px 14px;min-height:40px;display:inline-flex;align-items:center;transition:.2s}
+.shot .row a:hover{border-color:var(--accent)}
+.fineprint{margin-top:44px;padding-top:22px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px;max-width:64ch}
+.fineprint a{color:var(--mute)}
+/* states */
+#loading,#errorState{display:none;text-align:center;padding:90px 0}
+#loading .eyebrow{display:block;margin-bottom:10px}
+#errorState h1{font-size:clamp(28px,5vw,40px);margin:14px 0 12px}
+#errorState p{color:var(--mute);max-width:46ch;margin:0 auto 26px}
+.spin{width:34px;height:34px;border:2px solid var(--line2);border-top-color:var(--accent);border-radius:50%;margin:0 auto 20px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.shot img{aspect-ratio:1/1}.shot .row{flex-direction:column;align-items:stretch;gap:8px}.shot .row a{justify-content:center}.actions .btn{flex:1}}
+</style>
+</head>
+<body>
+<header class="wrap"><div class="brand"><img src="mvm-logo-mark.png" alt="Motion Visual Media"><span>Motion Visual Media</span></div></header>
+
+<main class="wrap">
+  <div id="loading">
+    <div class="spin"></div>
+    <span class="eyebrow">Motion Visual Media</span>
+    <p style="color:var(--mute)">Preparing your gallery…</p>
+  </div>
+
+  <div id="errorState">
+    <span class="eyebrow">Delivery Link</span>
+    <h1>This link has <em>expired.</em></h1>
+    <p>Delivery links stay live for 30 days. No worries — email us and we'll send you a fresh one.</p>
+    <a class="btn" href="mailto:hello@motionvisualmedia.com?subject=New%20delivery%20link%20please">Email hello@motionvisualmedia.com</a>
+  </div>
+
+  <div id="gallery" style="display:none">
+    <div class="hero">
+      <span class="eyebrow">Delivery · Motion Visual Media</span>
+      <h1 id="headline">Your headshots are <em>ready.</em></h1>
+      <p>Personally reviewed and finished by a 15-year photography professional. Download them below — they're yours, full resolution, full usage rights.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="zipBtn">Download all</button>
+    </div>
+    <div class="grid" id="shotGrid"></div>
+    <p class="fineprint">For your privacy, the reference photos you uploaded are automatically deleted from our systems within 7 days, and these finished files are stored for 30 days before they're purged too — so save them somewhere safe. Need anything? <a href="mailto:hello@motionvisualmedia.com">hello@motionvisualmedia.com</a></p>
+  </div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const token=new URLSearchParams(location.search).get('token')||'';
+let FILES=[];
+
+function show(state){['loading','errorState','gallery'].forEach(s=>$(s).style.display=s===state?'block':'none')}
+
+async function load(){
+  show('loading');
+  if(!token){show('errorState');return}
+  try{
+    const res=await fetch('/api/delivery?token='+encodeURIComponent(token));
+    if(!res.ok){show('errorState');return}
+    const d=await res.json();
+    FILES=d.files||[];
+    if(!FILES.length){show('errorState');return}
+    if(d.firstName)$('headline').innerHTML='Your headshots are ready, <em>'+d.firstName.replace(/[&<>"']/g,'')+'.</em>';
+    $('shotGrid').innerHTML=FILES.map((f,i)=>`
+      <div class="shot">
+        <img src="${f.previewUrl}" alt="Finished headshot ${i+1}" loading="lazy">
+        <div class="row"><span>${String(i+1).padStart(2,'0')} / ${String(FILES.length).padStart(2,'0')}</span><a href="${f.downloadUrl}" download>Download</a></div>
+      </div>`).join('');
+    show('gallery');
+  }catch(e){show('errorState')}
+}
+
+/* Store-only ZIP builder (JPEG/PNG don't recompress, so store is optimal) */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c}return t})();
+const crc32=u8=>{let c=~0;for(let i=0;i<u8.length;i++)c=(c>>>8)^CRC_T[(c^u8[i])&255];return ~c>>>0};
+function makeZip(entries){
+  const enc=new TextEncoder();const chunks=[];const central=[];let offset=0;
+  for(const e of entries){
+    const name=enc.encode(e.name),crc=crc32(e.data),n=e.data.length;
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);
+    lh.setUint16(10,0,true);lh.setUint16(12,0x2921,true);lh.setUint32(14,crc,true);lh.setUint32(18,n,true);lh.setUint32(22,n,true);
+    lh.setUint16(26,name.length,true);lh.setUint16(28,0,true);
+    chunks.push(new Uint8Array(lh.buffer),name,e.data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);
+    ch.setUint16(12,0,true);ch.setUint16(14,0x2921,true);ch.setUint32(16,crc,true);ch.setUint32(20,n,true);ch.setUint32(24,n,true);
+    ch.setUint16(28,name.length,true);ch.setUint32(42,offset,true);
+    central.push(new Uint8Array(ch.buffer),name);
+    offset+=30+name.length+n;
+  }
+  let cdSize=0;central.forEach(c=>cdSize+=c.length);
+  const eocd=new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0,0x06054b50,true);eocd.setUint16(8,entries.length,true);eocd.setUint16(10,entries.length,true);
+  eocd.setUint32(12,cdSize,true);eocd.setUint32(16,offset,true);
+  return new Blob([...chunks,...central,new Uint8Array(eocd.buffer)],{type:'application/zip'});
+}
+
+$('zipBtn').addEventListener('click',async()=>{
+  const btn=$('zipBtn');btn.disabled=true;
+  try{
+    const entries=[];
+    for(let i=0;i<FILES.length;i++){
+      btn.textContent=`Preparing ${i+1} of ${FILES.length}…`;
+      const r=await fetch(FILES[i].previewUrl);
+      if(!r.ok)throw new Error('download failed');
+      entries.push({name:FILES[i].name,data:new Uint8Array(await r.arrayBuffer())});
+    }
+    btn.textContent='Zipping…';
+    const blob=makeZip(entries);
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='Motion-Visual-Media-Headshots.zip';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+    btn.textContent='Downloaded ✓';
+    setTimeout(()=>{btn.textContent='Download all';btn.disabled=false},2500);
+  }catch(e){
+    btn.textContent='Download all';btn.disabled=false;
+    alert('That didn’t work — try the individual download buttons, or email hello@motionvisualmedia.com');
+  }
+});
+
+load();
+</script>
+</body>
+</html>
