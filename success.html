@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — Mckellar's View Media</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme="dark"]{--bg:#0A0A0A;--ink:#fff;--body:rgba(255,255,255,.7);--muted:rgba(255,255,255,.4);--border:rgba(255,255,255,.09);--surface:#111;--green-mid:#1E5C40;--green-ui:#6DB992;--green-lt:rgba(109,185,146,.12)}
+[data-theme="light"]{--bg:#fff;--ink:#1D1D1F;--body:#3A3A3C;--muted:#6E6E73;--border:#D1D1D6;--surface:#F5F5F7;--green-mid:#1E5C40;--green-ui:#1E5C40;--green-lt:#E8F2ED}
+html{scroll-behavior:smooth}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem;text-align:center}
+.check-ring{width:80px;height:80px;border-radius:50%;background:var(--green-lt);border:2px solid var(--green-ui);display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;animation:pop .5s cubic-bezier(.36,.07,.19,.97)}
+.check-ring svg{width:36px;height:36px;stroke:var(--green-ui)}
+@keyframes pop{0%{transform:scale(0);opacity:0}80%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.02em;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--green-ui)}
+.sub{font-size:.95rem;color:var(--body);line-height:1.75;max-width:480px;margin:0 auto 2.5rem}
+.steps-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.8rem;max-width:480px;width:100%;margin:0 auto 2.5rem;text-align:left}
+.steps-title{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
+.step-row{display:flex;gap:.9rem;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.step-row:last-child{border-bottom:none}
+.step-dot{width:24px;height:24px;border-radius:50%;background:var(--green-lt);border:1.5px solid var(--green-ui);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--green-ui);flex-shrink:0;margin-top:1px}
+.step-dot.done{background:var(--green-mid);border-color:var(--green-mid);color:#fff}
+.step-text strong{display:block;font-size:.85rem;font-weight:600;color:var(--ink);margin-bottom:.15rem}
+.step-text p{font-size:.78rem;color:var(--body);line-height:1.6}
+.upload-confirmed{display:inline-flex;align-items:center;gap:.4rem;background:var(--green-lt);border:1px solid rgba(109,185,146,.3);color:var(--green-ui);font-size:.72rem;font-weight:600;padding:.3rem .75rem;border-radius:100px;margin-bottom:.5rem}
+.btn-home{display:inline-flex;align-items:center;gap:.5rem;background:var(--green-mid);color:#fff;font-size:.88rem;font-weight:600;padding:.8rem 1.8rem;border-radius:980px;text-decoration:none;transition:background .2s}
+.btn-home:hover{background:#14422F}
+.session-info{margin-top:1.5rem;font-size:.72rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="check-ring">
+  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+</div>
+<h1>You're in.<br><em>Let's get you looking sharp.</em></h1>
+<p class="sub">Payment confirmed. Your order is in the queue. Check your email for a Stripe receipt — here's what happens next.</p>
+
+<div class="steps-box">
+  <div class="steps-title">What happens next</div>
+  <div class="step-row">
+    <div class="step-dot done">✓</div>
+    <div class="step-text">
+      <div class="upload-confirmed">✓ Photos received</div>
+      <strong>Your photos are uploaded</strong>
+      <p>Your reference photos were securely uploaded during checkout and are already with us. No action needed on your end.</p>
+    </div>
+  </div>
+  <div class="step-row">
+    <div class="step-dot">2</div>
+    <div class="step-text">
+      <strong>We generate your headshots</strong>
+      <p>Your images are generated using precision prompts built around your reference photos. Human Review orders are personally curated before delivery.</p>
+    </div>
+  </div>
+  <div class="step-row">
+    <div class="step-dot">3</div>
+    <div class="step-text">
+      <strong>Delivery within 48 hours</strong>
+      <p>You'll receive a download link to your high-resolution headshots at the email you provided. LinkedIn-ready crops included.</p>
+    </div>
+  </div>
+</div>
+
+<a href="/" class="btn-home">
+  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+  Back to home
+</a>
+<p class="session-info" id="session-note"></p>
+<script>
+const params = new URLSearchParams(window.location.search);
+const sid = params.get('session_id');
+if (sid) document.getElementById('session-note').textContent = 'Order ref: ' + sid.slice(-8).toUpperCase();
+if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+  document.documentElement.setAttribute('data-theme','light');
+}
+// If no photos uploaded (graceful degradation), swap step 1 message
+const uploaded = sessionStorage.getItem('photosUploaded');
+if (uploaded === 'false') {
+  document.querySelector('.upload-confirmed').textContent = '⚠ Photos pending';
+  document.querySelector('.step-row strong').textContent = 'Send your photos';
+  document.querySelector('.step-row p').textContent = 'Reply to your Stripe receipt email with 1-3 clear, unfiltered photos of your face. Selfies welcome.';
+}
+</script>
+</body>
+</html>
