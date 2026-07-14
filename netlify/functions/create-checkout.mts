@@ -42,7 +42,7 @@ export default async (req: Request, context: Context) => {
     const description = DESCRIPTIONS[pkg];
     const humanReview = true; // review is included in every order
 
-    const siteUrl = Netlify.env.get("URL") || "https://mckellarview-ai-headshots.netlify.app";
+    const siteUrl = Netlify.env.get("URL") || "https://headshots.motionvisualmedia.com";
 
     // Build metadata — include photo storage references if uploaded
     const metadata: Record<string, string> = {
