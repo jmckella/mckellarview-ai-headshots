@@ -176,7 +176,7 @@ export default async (req: Request, context: Context) => {
           method: "POST",
           headers: dbHeaders(),
         });
-        if (!res.ok) return json({ error: `Could not sign upload for ${name}` }, 502);
+        if (!res.ok) return json({ error: `Could not sign upload for ${name}: ${res.status} ${(await res.text()).slice(0, 200)}` }, 502);
         const { url: signed } = await res.json();
         out.push({ name, path, uploadUrl: `${env("SUPABASE_URL")}/storage/v1${signed}` });
       }
